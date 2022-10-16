@@ -1,12 +1,18 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, viewsets
-from rest_framework.exceptions import PermissionDenied
+from rest_framework import filters, mixins, viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 
 from .permissions import IsAuthorOrReadOnly
-from .serializers import CommentSerializer, FollowSerializer, GroupSerializer, PostSerializer
-from posts.models import Comment, Follow, Group, Post, User
+from .serializers import (CommentSerializer, FollowSerializer,
+                          GroupSerializer, PostSerializer)
+from posts.models import Group, Post
+
+
+class CreateListRetrieveViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    pass
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -17,16 +23,6 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента!')
-        super(PostViewSet, self).perform_destroy(instance)
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента!')
-        super(PostViewSet, self).perform_update(serializer)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -42,35 +38,20 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user, post=self.get_post())
 
-    def perform_destroy(self, instance):
-        if instance.author != self.request.user:
-            raise PermissionDenied('Удаление чужого контента!')
-        super(CommentViewSet, self).perform_destroy(instance)
-
-    def perform_update(self, serializer):
-        if serializer.instance.author != self.request.user:
-            raise PermissionDenied('Изменение чужого контента!')
-        super(CommentViewSet, self).perform_update(serializer)
-
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
 
-class FollowViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    viewsets.GenericViewSet):
+class FollowViewSet(CreateListRetrieveViewSet):
     serializer_class = FollowSerializer
+    permission_classes = (IsAuthenticated,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
         return self.request.user.follower.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user,)
-
-    # def get_following(self):
-    #     return get_object_or_404(User, username=self.kwargs.get('user_username'))
-    #
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user, following=self.get_following())

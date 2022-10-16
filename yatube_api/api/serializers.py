@@ -3,10 +3,9 @@ import base64
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
 
 from posts.models import Comment, Follow, Group, Post, User
-
-
 
 
 class Base64ImageField(serializers.ImageField):
@@ -18,6 +17,12 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = '__all__'
+
+
 class PostSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
     image = Base64ImageField(required=False, allow_null=True)
@@ -25,7 +30,6 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Post
-        read_only_fields = ('group',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -39,18 +43,30 @@ class CommentSerializer(serializers.ModelSerializer):
         read_only_fields = ('post',)
 
 
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        Model = Group
-        fields = '__all__'
-
-
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
-        read_only=True, slug_field='username')
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault()
+    )
     following = serializers.SlugRelatedField(
-        slug_field='username', queryset=User.objects.all())
+        slug_field='username',
+        queryset=User.objects.all()
+    )
+
+    def validate(self, value):
+        if self.context['request'].user == value['following']:
+            raise serializers.ValidationError(
+                'Подписываться нужно не на себя, а на другого.'
+            )
+        return value
 
     class Meta:
         model = Follow
         fields = ('user', 'following')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following')
+            )
+        ]
