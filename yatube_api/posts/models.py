@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .abstract_models import CreatedModel
 
 User = get_user_model()
 
@@ -15,8 +14,12 @@ class Group(models.Model):
         return self.title
 
 
-class Post(CreatedModel):
+class Post(models.Model):
     text = models.TextField()
+    pub_date = models.DateTimeField(
+        'дата публикации', auto_now_add=True)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='автор')
     group = models.ForeignKey(
         Group,
         on_delete=models.SET_NULL,
@@ -32,12 +35,22 @@ class Post(CreatedModel):
         return f'{self.text[:30]}'
 
 
-class Comment(CreatedModel):
+class Comment(models.Model):
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name='comments')
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
+    created = models.DateTimeField(
+        'Дата добавления', auto_now_add=True, db_index=True)
 
 
-class Follow(CreatedModel):
+class Follow(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='follower')
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        null=True
+    )
