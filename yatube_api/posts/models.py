@@ -30,6 +30,9 @@ class Post(models.Model):
     image = models.ImageField(
         upload_to='posts/', null=True, blank=True)
 
+    class Meta:
+        ordering = ['pub_date']
+
     def __str__(self):
         return f'{self.text[:30]}'
 
@@ -53,3 +56,10 @@ class Follow(models.Model):
         related_name='following',
         null=True
     )
+
+    # class Meta:
+    #     constraints = [
+    #         models.CheckConstraint(
+    #             check=~models.Q(from_user=models.F("user")),
+    #         ),
+    #     ]

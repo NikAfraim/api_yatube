@@ -9,9 +9,8 @@ from .serializers import (CommentSerializer, FollowSerializer,
 from posts.models import Group, Post
 
 
-class CreateListRetrieveViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                                mixins.RetrieveModelMixin,
-                                viewsets.GenericViewSet):
+class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                        viewsets.GenericViewSet):
     pass
 
 
@@ -44,7 +43,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupSerializer
 
 
-class FollowViewSet(CreateListRetrieveViewSet):
+class FollowViewSet(CreateListViewSet):
     serializer_class = FollowSerializer
     permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
