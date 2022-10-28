@@ -39,5 +39,5 @@ python3 manage.py runserver
 ```
 ---
 Используется: Django, Django REST Framework, djoser, simplejwt.\
-Документация к проекту: http://127.0.0.1:8000/redoc/\
+Документация к проекту: http://127.0.0.1:8000/redoc/ \
 Автор проекта: Сенгилейцев Н. С. 
