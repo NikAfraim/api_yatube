@@ -56,10 +56,3 @@ class Follow(models.Model):
         related_name='following',
         null=True
     )
-
-    # class Meta:
-    #     constraints = [
-    #         models.CheckConstraint(
-    #             check=~models.Q(from_user=models.F("user")),
-    #         ),
-    #     ]
