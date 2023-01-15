@@ -27,7 +27,7 @@
 https://github.com/NikAfraim/api_yatube.git
 ```
 ```
-cd api_final_yatube
+cd api_yatube
 ```
 ---
 Cоздать и активировать виртуальное окружение:
