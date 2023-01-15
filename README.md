@@ -1,4 +1,4 @@
-# Проект api_final_yatube
+# Проект api_yatube
 
 ### Описание
 Проект api_final_yatube основан на работе с API. \
