@@ -1,7 +1,7 @@
 # Проект api_yatube
 
 ### Описание
-Проект api_final_yatube основан на работе с API. \
+Проект api_yatube основан на работе с API. \
 Возможности для авторезированных пользователей:
 - Посты:
     - создание,
@@ -24,7 +24,7 @@
 Как запустить проект:
 Клонировать репозиторий и перейти в него в командной строке:
 ```
-https://github.com/NikAfraim/api_final_yatube.git
+https://github.com/NikAfraim/api_yatube.git
 ```
 ```
 cd api_final_yatube
